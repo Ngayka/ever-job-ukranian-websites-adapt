@@ -183,13 +183,10 @@ import { AnalyticsModule } from '@ever-jobs/analytics';
 import { JobsService } from '../../api/src/jobs/jobs.service';
 import { SearchCommand } from './commands/search.command';
 import { CompareCommand } from './commands/compare.command';
-import { ConfigModule } from '@nestjs/config';
+
 
 @Module({
   imports: [
-    ConfigModule.forRoot({
-    isGlobal: true,
-    }),
     // Search-based sources
     LinkedInModule,
     PluginModule,

@@ -14,12 +14,10 @@ import { SourcesHealthController } from './health.controller';
 import { MetricsCircuitBreakerBridge } from './metrics-circuit-breaker.bridge';
 import { PluginPolicyBootstrapper } from './plugin-policy.bootstrapper';
 import { HealthSnapshotCron } from './health-snapshot.cron';
-import { MetricsModule } from '../metrics/metrics.module';
 
 @Module({
   imports: [
     PluginModule,
-    MetricsModule,
     ...ALL_SOURCE_MODULES,
     AnalyticsModule,
     // Spec 003 / Phase 5 — bind the default dedup engine + merge resolver

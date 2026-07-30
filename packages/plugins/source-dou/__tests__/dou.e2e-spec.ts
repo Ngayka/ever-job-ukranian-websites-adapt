@@ -1,27 +1,24 @@
 /**
- * E2E test for the Djinni scraper.
- *
- * Djinni is a Ukrainian tech job board with RSS feed.
- * No authentication required -- the RSS feed is public.
+ * E2E test for the DOU scraper.
  */
 import { Test, TestingModule } from '@nestjs/testing';
-import { DjinniModule, DjinniService } from '@ever-jobs/source-djinni';
+import { DouModule, DouService } from '@ever-jobs/source-dou';
 import { ScraperInputDto, Site, DescriptionFormat } from '@ever-jobs/models';
 
-describe('DjinniService (E2E)', () => {
-  let service: DjinniService;
+describe('DouService (E2E)', () => {
+  let service: DouService;
 
   beforeAll(async () => {
     const module: TestingModule = await Test.createTestingModule({
-      imports: [DjinniModule],
+      imports: [DouModule],
     }).compile();
 
-    service = module.get<DjinniService>(DjinniService);
+    service = module.get<DouService>(DouService);
   });
 
   it('should return job results', async () => {
     const input = new ScraperInputDto({
-      siteType: [Site.DJINNI],
+      siteType: [Site.DOU],
       resultsWanted: 5,
       descriptionFormat: DescriptionFormat.MARKDOWN,
     });
@@ -36,14 +33,14 @@ describe('DjinniService (E2E)', () => {
       const job = response.jobs[0];
       expect(job.title).toBeDefined();
       expect(typeof job.title).toBe('string');
-      expect(job.site).toBe(Site.DJINNI);
-      expect(job.id).toMatch(/^djinni-/);
+      expect(job.site).toBe(Site.DOU);
+      expect(job.id).toMatch(/^dou-/);
     }
   }, 30000);
 
   it('should respect resultsWanted limit', async () => {
     const input = new ScraperInputDto({
-      siteType: [Site.DJINNI],
+      siteType: [Site.DOU],
       resultsWanted: 3,
       descriptionFormat: DescriptionFormat.PLAIN,
     });
@@ -56,7 +53,7 @@ describe('DjinniService (E2E)', () => {
 
   it('should handle search term filtering', async () => {
     const input = new ScraperInputDto({
-      siteType: [Site.DJINNI],
+      siteType: [Site.DOU],
       searchTerm: 'developer',
       resultsWanted: 5,
     });
