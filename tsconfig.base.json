@@ -1839,7 +1839,8 @@
       "@ever-jobs/source-ats-oracle": ["packages/plugins/source-ats-oracle/src/index.ts"],
       "@ever-jobs/source-ats-mercor": ["packages/plugins/source-ats-mercor/src/index.ts"],
       "@ever-jobs/source-tesla": ["packages/plugins/source-tesla/src/index.ts"],
-      "@ever-jobs/source-tesla-playwright": ["packages/plugins/source-tesla-playwright/src/index.ts"]
+      "@ever-jobs/source-tesla-playwright": ["packages/plugins/source-tesla-playwright/src/index.ts"],
+      "@ever-jobs/source-dou": ["packages/plugins/source-dou/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "dist"]

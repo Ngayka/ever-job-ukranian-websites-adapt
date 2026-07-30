@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { PluginModule } from '@ever-jobs/plugin';
+import { DouModule } from '@ever-jobs/source-dou';
 import { LinkedInModule } from '@ever-jobs/source-linkedin';
 import { IndeedModule } from '@ever-jobs/source-indeed';
 import { GlassdoorModule } from '@ever-jobs/source-glassdoor';
@@ -181,11 +183,16 @@ import { AnalyticsModule } from '@ever-jobs/analytics';
 import { JobsService } from '../../api/src/jobs/jobs.service';
 import { SearchCommand } from './commands/search.command';
 import { CompareCommand } from './commands/compare.command';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [
+    ConfigModule.forRoot({
+    isGlobal: true,
+    }),
     // Search-based sources
     LinkedInModule,
+    PluginModule,
     IndeedModule,
     GlassdoorModule,
     ZipRecruiterModule,
@@ -357,6 +364,7 @@ import { CompareCommand } from './commands/compare.command';
     RemotefirstjobsModule,
     // Phase 22: Eastern European, CIS & Singapore expansion
     DjinniModule,
+    DouModule,
     HeadhunterModule,
     HabrcareerModule,
     MycareersfutureModule,

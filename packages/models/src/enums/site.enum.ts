@@ -1,5 +1,6 @@
 export enum Site {
   LINKEDIN = 'linkedin',
+  DOU = "dou",
   INDEED = 'indeed',
   ZIP_RECRUITER = 'zip_recruiter',
   GLASSDOOR = 'glassdoor',
