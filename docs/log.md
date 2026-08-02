@@ -5,6 +5,10 @@
 
 ---
 
+## 2026-08-02 — Retired source reference cleanup (Spec 1678)
+
+Removed stale enum, registry, CLI, test, MCP catalogue, merge-default, and documentation entries for two intentionally retired source packages. Surviving source implementations were not changed. The monorepo build and repository-wide retired-identifier scan form the acceptance gate.
+
 > **Run #100 reminder — Q-042 has been pending review since run #84 (~119 runs / ~119 hours of agent wall-clock). Default C continues; user owner please review at convenience.**
 
 > **Run #150 reminder — Q-042 has been pending review for ~119 runs since run #84. Default C continues; user owner please review at convenience.** (Second-reminder threshold per the run #100 reminder convention; next reminder window opens at run #200.)

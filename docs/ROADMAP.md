@@ -35,7 +35,7 @@
 - ✅ Phase 19 Tech niche, crypto & regional expansion (Rails Job Board, Elixir Jobs, Crunchboard, Cryptocurrency Jobs, HasJob)
 - ✅ Phase 20 European regional & niche expansion (iCrunchData, SwissDevJobs, GermanTechJobs, VirtualVocations, NoFluffJobs)
 - ✅ Phase 21 Niche & academic expansion (Green Jobs Board, EuroJobs, Open Source Design Jobs, Academic Careers, RemoteFirstJobs)
-- ✅ Phase 22 Eastern European, CIS & Singapore expansion (Djinni, HeadHunter, Habr Career, MyCareersFuture)
+- ✅ Phase 22 Eastern European & Singapore expansion (Djinni, MyCareersFuture)
 - ✅ Phase 23 Japan, Nordic & Swiss expansion (Duunitori, Jobs in Japan, Jobs.ch)
 - ✅ Phase 24 UK & mobile dev expansion (Guardian Jobs, AndroidJobs, iOS Dev Jobs)
 - ✅ Phase 25 DevOps, FP, diversity & niche expansion (DevOpsJobs, Functional Works, PowerToFly, Clojure Jobs)

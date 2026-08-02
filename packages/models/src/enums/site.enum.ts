@@ -170,8 +170,6 @@ export enum Site {
   REMOTEFIRSTJOBS = 'remotefirstjobs',
   // Phase 22: Eastern European, CIS & Singapore expansion
   DJINNI = 'djinni',
-  HEADHUNTER = 'headhunter',
-  HABRCAREER = 'habrcareer',
   MYCAREERSFUTURE = 'mycareersfuture',
   // Phase 23: Japan, Nordic & Swiss expansion
   JOBSINJAPAN = 'jobsinjapan',

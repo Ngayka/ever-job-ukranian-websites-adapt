@@ -253,8 +253,6 @@ const SOURCES: SourceInfo[] = [
   { name: 'RemoteFirstJobs', id: 'remotefirstjobs', type: 'remote', requires_company_slug: false, description: 'Remote-first job listings' },
   // Phase 22: Eastern European, CIS & Singapore expansion
   { name: 'Djinni', id: 'djinni', type: 'job_board', requires_company_slug: false, description: 'Ukrainian tech job board' },
-  { name: 'HeadHunter', id: 'headhunter', type: 'job_board', requires_company_slug: false, description: 'Russian/CIS job board (140K+ vacancies)' },
-  { name: 'Habr Career', id: 'habrcareer', type: 'job_board', requires_company_slug: false, description: 'Russian tech job board (Habr community)' },
   { name: 'MyCareersFuture', id: 'mycareersfuture', type: 'job_board', requires_company_slug: false, description: 'Singapore government job portal (77K+ jobs)' },
   // Phase 23: Japan, Nordic & Swiss expansion
   { name: 'Jobs in Japan', id: 'jobsinjapan', type: 'job_board', requires_company_slug: false, description: 'English-language Japan tech jobs' },

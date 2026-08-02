@@ -412,10 +412,8 @@ import { GolangJobsModule } from './source-golangjobs';
 import { GoogleModule } from './source-google';
 import { GreenJobsBoardModule } from './source-greenjobsboard';
 import { GuardianjobsModule } from './source-guardianjobs';
-import { HabrcareerModule } from './source-habrcareer';
 import { HackerNewsModule } from './source-hackernews';
 import { HasJobModule } from './source-hasjob';
-import { HeadhunterModule } from './source-headhunter';
 import { HigherEdJobsModule } from './source-higheredjobs';
 import { HimalayasModule } from './source-himalayas';
 import { IcrunchdataModule } from './source-icrunchdata';
@@ -2223,10 +2221,8 @@ export const ALL_SOURCE_MODULES = [
   GoogleModule,
   GreenJobsBoardModule,
   GuardianjobsModule,
-  HabrcareerModule,
   HackerNewsModule,
   HasJobModule,
-  HeadhunterModule,
   HigherEdJobsModule,
   HimalayasModule,
   IcrunchdataModule,

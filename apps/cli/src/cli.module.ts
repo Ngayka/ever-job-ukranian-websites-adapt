@@ -160,8 +160,6 @@ import { AcademiccareersModule } from '@ever-jobs/source-academiccareers';
 import { RemotefirstjobsModule } from '@ever-jobs/source-remotefirstjobs';
 // Phase 22: Eastern European, CIS & Singapore expansion
 import { DjinniModule } from '@ever-jobs/source-djinni';
-import { HeadhunterModule } from '@ever-jobs/source-headhunter';
-import { HabrcareerModule } from '@ever-jobs/source-habrcareer';
 import { MycareersfutureModule } from '@ever-jobs/source-mycareersfuture';
 // Phase 23: Japan, Nordic & Swiss expansion
 import { JobsInJapanModule } from '@ever-jobs/source-jobsinjapan';
@@ -362,8 +360,6 @@ import { CompareCommand } from './commands/compare.command';
     // Phase 22: Eastern European, CIS & Singapore expansion
     DjinniModule,
     DouModule,
-    HeadhunterModule,
-    HabrcareerModule,
     MycareersfutureModule,
     // Phase 23: Japan, Nordic & Swiss expansion
     JobsInJapanModule,
