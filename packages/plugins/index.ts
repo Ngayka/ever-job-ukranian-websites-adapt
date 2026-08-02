@@ -391,6 +391,7 @@ import { DevITJobsModule } from './source-devitjobs';
 import { DevopsjobsModule } from './source-devopsjobs';
 import { DiceModule } from './source-dice';
 import { DjinniModule } from './source-djinni';
+import { DouModule } from './source-dou';
 import { DribbbleModule } from './source-dribbble';
 import { DrupalJobsModule } from './source-drupaljobs';
 import { DuunitoriModule } from './source-duunitori';
@@ -2201,6 +2202,7 @@ export const ALL_SOURCE_MODULES = [
   DevopsjobsModule,
   DiceModule,
   DjinniModule,
+  DouModule,
   DribbbleModule,
   DrupalJobsModule,
   DuunitoriModule,

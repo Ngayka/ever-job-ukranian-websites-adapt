@@ -17,6 +17,7 @@ module.exports = {
     '^@ever-jobs/store-postgres-prisma$': '<rootDir>/packages/plugins/store-postgres-prisma/src/index.ts',
     '^@ever-jobs/source-linkedin$': '<rootDir>/packages/plugins/source-linkedin/src/index.ts',
     '^@ever-jobs/source-indeed$': '<rootDir>/packages/plugins/source-indeed/src/index.ts',
+    '^@ever-jobs/source-dou$': '<rootDir>/packages/plugins/source-dou/src/index.ts',
     '^@ever-jobs/source-glassdoor$': '<rootDir>/packages/plugins/source-glassdoor/src/index.ts',
     '^@ever-jobs/source-ziprecruiter$': '<rootDir>/packages/plugins/source-ziprecruiter/src/index.ts',
     '^@ever-jobs/source-google$': '<rootDir>/packages/plugins/source-google/src/index.ts',
