@@ -1,7 +1,7 @@
 {
   "extends": "../../../tsconfig.base.json",
   "compilerOptions": {
-    "outDir": "../../../dist/packages/source-djinni",
+    "outDir": "../../../dist/packages/source-dou",
     "declaration": true
   },
   "include": ["src/**/*"]

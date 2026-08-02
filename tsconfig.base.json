@@ -1817,8 +1817,6 @@
       "@ever-jobs/source-academiccareers": ["packages/plugins/source-academiccareers/src/index.ts"],
       "@ever-jobs/source-remotefirstjobs": ["packages/plugins/source-remotefirstjobs/src/index.ts"],
       "@ever-jobs/source-djinni": ["packages/plugins/source-djinni/src/index.ts"],
-      "@ever-jobs/source-headhunter": ["packages/plugins/source-headhunter/src/index.ts"],
-      "@ever-jobs/source-habrcareer": ["packages/plugins/source-habrcareer/src/index.ts"],
       "@ever-jobs/source-mycareersfuture": ["packages/plugins/source-mycareersfuture/src/index.ts"],
       "@ever-jobs/source-jobsinjapan": ["packages/plugins/source-jobsinjapan/src/index.ts"],
       "@ever-jobs/source-duunitori": ["packages/plugins/source-duunitori/src/index.ts"],
@@ -1840,7 +1838,9 @@
       "@ever-jobs/source-ats-mercor": ["packages/plugins/source-ats-mercor/src/index.ts"],
       "@ever-jobs/source-tesla": ["packages/plugins/source-tesla/src/index.ts"],
       "@ever-jobs/source-tesla-playwright": ["packages/plugins/source-tesla-playwright/src/index.ts"],
-      "@ever-jobs/source-dou": ["packages/plugins/source-dou/src/index.ts"]
+      "@ever-jobs/source-dou": ["packages/plugins/source-dou/src/index.ts"],
+      "@ever-jobs/source-happymonday": ["packages/plugins/source-happymonday/src/index.ts"
+]
     }
   },
   "exclude": ["node_modules", "dist"]

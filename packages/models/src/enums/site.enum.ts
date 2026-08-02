@@ -1,6 +1,7 @@
 export enum Site {
   LINKEDIN = 'linkedin',
   DOU = "dou",
+  HAPPYMONDAY = "happymonday",
   INDEED = 'indeed',
   ZIP_RECRUITER = 'zip_recruiter',
   GLASSDOOR = 'glassdoor',
@@ -3475,6 +3476,7 @@ export enum Site {
   WEEZTIX = 'weeztix',
   // Phase 1676: Spec 1676 — Source Company Plugin: XSARUS
   XSARUS = 'xsarus',
+
 }
 
 /**
