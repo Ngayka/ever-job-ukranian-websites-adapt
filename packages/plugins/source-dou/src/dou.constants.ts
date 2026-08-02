@@ -1,10 +1,11 @@
-export const HAPPYMONDAY_BASE_URL = 'https://happymonday.ua';
+export const DOU_RSS_URL = 'https://jobs.dou.ua/vacancies/feeds/';
 
-export const HAPPYMONDAY_DEFAULT_RESULTS = 25;
+export const DOU_DEFAULT_RESULTS = 25;
 
-export const HAPPYMONDAY_HEADERS: Record<string, string> = {
-  Accept: 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
-  'Accept-Language': 'uk-UA,uk;q=0.9,en;q=0.8',
+export const DOU_HEADERS: Record<string, string> = {
+  Accept: 'application/rss+xml, application/xml, text/xml',
   'User-Agent':
-    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/150.0.0.0 Safari/537.36',
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) ' +
+    'AppleWebKit/537.36 (KHTML, like Gecko) ' +
+    'Chrome/150.0.0.0 Safari/537.36',
 };
