@@ -1814,6 +1814,7 @@ import { WATCHVICELeingangECommerceModule } from './source-company-watchvicelein
 import { WEBBTradersModule } from './source-company-webbtraders';
 import { WeeztixModule } from './source-company-weeztix';
 import { XSARUSModule } from './source-company-xsarus';
+import { HappyMondayModule } from './source-happymonday';
 export const ALL_SOURCE_MODULES = [
   FourDayWeekModule,
   AcademiccareersModule,
@@ -3621,4 +3622,5 @@ export const ALL_SOURCE_MODULES = [
   WEBBTradersModule,
   WeeztixModule,
   XSARUSModule,
+  HappyMondayModule,
 ];
