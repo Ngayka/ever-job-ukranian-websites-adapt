@@ -1823,6 +1823,7 @@ module.exports = {
     '^@ever-jobs/source-ats-mercor$': '<rootDir>/packages/plugins/source-ats-mercor/src/index.ts',
     '^@ever-jobs/source-tesla$': '<rootDir>/packages/plugins/source-tesla/src/index.ts',
     '^@ever-jobs/source-tesla-playwright$': '<rootDir>/packages/plugins/source-tesla-playwright/src/index.ts',
+    '^@ever-jobs/source-workua$': '<rootDir>/packages/plugins/source-workua/src/index.ts',
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.base.json' }],

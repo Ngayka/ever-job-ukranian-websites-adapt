@@ -1815,6 +1815,7 @@ import { WEBBTradersModule } from './source-company-webbtraders';
 import { WeeztixModule } from './source-company-weeztix';
 import { XSARUSModule } from './source-company-xsarus';
 import { HappyMondayModule } from './source-happymonday';
+import { WorkUaModule } from './source-workua';
 export const ALL_SOURCE_MODULES = [
   FourDayWeekModule,
   AcademiccareersModule,
@@ -3623,4 +3624,5 @@ export const ALL_SOURCE_MODULES = [
   WeeztixModule,
   XSARUSModule,
   HappyMondayModule,
+  WorkUaModule,
 ];
