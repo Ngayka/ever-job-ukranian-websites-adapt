@@ -1840,7 +1840,8 @@
       "@ever-jobs/source-tesla-playwright": ["packages/plugins/source-tesla-playwright/src/index.ts"],
       "@ever-jobs/source-dou": ["packages/plugins/source-dou/src/index.ts"],
       "@ever-jobs/source-workua": ["packages/plugins/source-workua/src/index.ts"],
-      "@ever-jobs/source-happymonday": ["packages/plugins/source-happymonday/src/index.ts",]
+      "@ever-jobs/source-happymonday": ["packages/plugins/source-happymonday/src/index.ts",],
+      "@ever-jobs/source-odoo-jobs": ["packages/plugins/source-odoo-jobs/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "dist"]

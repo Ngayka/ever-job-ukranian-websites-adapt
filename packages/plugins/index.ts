@@ -1817,6 +1817,7 @@ import { XSARUSModule } from './source-company-xsarus';
 import { HappyMondayModule } from './source-happymonday';
 import { WorkUaModule } from './source-workua';
 import { UkraineOdooCompaniesModule } from './source-ukraine-odoo-companies';
+import { OdooJobsModule } from './source-odoo-jobs';
 export const ALL_SOURCE_MODULES = [
   FourDayWeekModule,
   AcademiccareersModule,
@@ -3627,4 +3628,5 @@ export const ALL_SOURCE_MODULES = [
   HappyMondayModule,
   WorkUaModule,
   UkraineOdooCompaniesModule,
+  OdooJobsModule,
 ];

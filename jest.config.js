@@ -1824,6 +1824,7 @@ module.exports = {
     '^@ever-jobs/source-tesla$': '<rootDir>/packages/plugins/source-tesla/src/index.ts',
     '^@ever-jobs/source-tesla-playwright$': '<rootDir>/packages/plugins/source-tesla-playwright/src/index.ts',
     '^@ever-jobs/source-workua$': '<rootDir>/packages/plugins/source-workua/src/index.ts',
+    '^@ever-jobs/source-odoo-jobs$': '<rootDir>/packages/plugins/source-odoo-jobs/src/index.ts',
   },
   transform: {
     '^.+\\.tsx?$': ['ts-jest', { tsconfig: 'tsconfig.base.json' }],

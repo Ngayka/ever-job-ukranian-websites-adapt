@@ -1,6 +1,7 @@
 export enum Site {
   LINKEDIN = 'linkedin',
   UKRAINE_ODOO_COMPANIES = 'UKRAINE_ODOO_COMPANIES',
+  ODOO_JOBS = 'ODOO_JOBS',
   DOU = "dou",
   WORKUA = "workua",
   HAPPYMONDAY = "happymonday",

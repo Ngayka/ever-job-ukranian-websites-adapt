@@ -3,6 +3,15 @@
 > Append-only log of every doc/spec edit. **Newest entry at the top.** This is a
 > human-readable audit trail; for source-code history, see `git log`.
 
+## 2026-08-05 — Official Odoo Jobs source scaffold (Spec 5025)
+
+Added and registered `@ever-jobs/source-odoo-jobs` for the official Odoo careers page,
+including its enum value, aliases, public exports, shared-HTTP-client service, and targeted E2E
+coverage. The service deliberately returns no parsed jobs: verified Odoo HTML selectors and
+the `parseJobs` implementation are deferred to a follow-up change.
+
+---
+
 ## 2026-08-04 — Telegram source catalog (Spec 5024)
 
 Inventoried all `packages/plugins/source-*` packages and generated a unique, evidence-based
