@@ -31,6 +31,9 @@
 | [`API_CHANGELOG.md`](./API_CHANGELOG.md)                 | API endpoint history.            |
 | [`ATS_INTEGRATIONS.md`](./ATS_INTEGRATIONS.md)           | ATS plugin coverage.             |
 | [`COMPANY_SLUG_DIRECTORY.md`](./COMPANY_SLUG_DIRECTORY.md) | Slug catalogue for ATS.        |
+| [`source-catalog.generated.json`](./source-catalog.generated.json) | Generated Telegram-bot source catalog. |
+| [`source-catalog-review.md`](./source-catalog-review.md) | Classification counts, risks, duplicates, and recommended bot sources. |
+| [`generated_job_sources.py`](./generated_job_sources.py) | Standalone Python enums, source mapping, and bot filter helper. |
 | [`GLOSSARY.md`](./GLOSSARY.md)                           | Domain terminology.              |
 | [`FAQ.md`](./FAQ.md)                                     | Frequently asked questions.      |
 | [`AUTHENTICATION.md`](./AUTHENTICATION.md)               | API-key & auth model.            |

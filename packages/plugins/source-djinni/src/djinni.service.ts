@@ -1,22 +1,31 @@
-﻿import { SourcePlugin } from '@ever-jobs/plugin';
+﻿import * as cheerio from 'cheerio';
 
+import { SourcePlugin } from '@ever-jobs/plugin';
 import { Injectable, Logger } from '@nestjs/common';
+
 import {
   IScraper,
   ScraperInputDto,
   JobResponseDto,
   JobPostDto,
+  LocationDto,
   Site,
   DescriptionFormat,
 } from '@ever-jobs/models';
+
 import {
   createHttpClient,
   htmlToPlainText,
   markdownConverter,
   extractEmails,
 } from '@ever-jobs/common';
-import { DJINNI_RSS_URL, DJINNI_HEADERS } from './djinni.constants';
-import { DjinniRssItem } from './djinni.types';
+
+import {
+  DJINNI_JOBS_URL,
+  DJINNI_HEADERS,
+} from './djinni.constants';
+
+import { DjinniHtmlJob } from './djinni.types';
 
 @SourcePlugin({
   site: Site.DJINNI,
@@ -29,202 +38,463 @@ export class DjinniService implements IScraper {
 
   async scrape(input: ScraperInputDto): Promise<JobResponseDto> {
     const resultsWanted = input.resultsWanted ?? 25;
+    const searchTerm = input.searchTerm?.trim();
 
     const client = createHttpClient({
       proxies: input.proxies,
       caCert: input.caCert,
       timeout: input.requestTimeout,
     });
+
     client.setHeaders(DJINNI_HEADERS);
 
+    const searchUrl = this.buildSearchUrl(searchTerm);
+
     this.logger.log(
-      `Fetching Djinni RSS feed (resultsWanted=${resultsWanted})`,
+      `Fetching Djinni HTML search: ${searchUrl} ` +
+        `(resultsWanted=${resultsWanted})`,
     );
 
     try {
-      const response = await client.get(DJINNI_RSS_URL);
-      const xml = response.data;
+      const response = await client.get(searchUrl);
+      const html = response.data;
 
-      if (!xml || typeof xml !== 'string') {
-        this.logger.warn('Empty or invalid RSS response from Djinni');
+      if (!html || typeof html !== 'string') {
+        this.logger.warn('Empty or invalid HTML response from Djinni');
         return new JobResponseDto([]);
       }
 
-      const items = this.parseRssItems(xml);
-      this.logger.log(`Parsed ${items.length} items from Djinni RSS feed`);
+      const parsedJobs = this.parseJobs(html);
+
+      this.logger.log(
+        `Parsed ${parsedJobs.length} jobs from Djinni HTML`,
+      );
 
       const jobs: JobPostDto[] = [];
 
-      for (const item of items) {
-        if (jobs.length >= resultsWanted) break;
+      for (const parsedJob of parsedJobs) {
+        if (jobs.length >= resultsWanted) {
+          break;
+        }
 
         try {
-          if (input.searchTerm && !this.matchesSearch(item, input.searchTerm)) {
+          /*
+           * Djinni вже виконує серверний пошук через all_keywords.
+           * Додаткова перевірка потрібна лише як захист від нерелевантної
+           * видачі або зміни поведінки сайту.
+           */
+          if (
+            searchTerm &&
+            !this.matchesSearch(parsedJob, searchTerm)
+          ) {
             continue;
           }
 
-          const job = this.mapJob(item, input.descriptionFormat);
-          if (job) jobs.push(job);
-        } catch (err: any) {
+          const job = this.mapJob(
+            parsedJob,
+            input.descriptionFormat,
+          );
+
+          jobs.push(job);
+        } catch (error: unknown) {
+          const message =
+            error instanceof Error
+              ? error.message
+              : String(error);
+
           this.logger.warn(
-            `Error mapping Djinni job ${item.link}: ${err.message}`,
+            `Error mapping Djinni job ${parsedJob.link}: ${message}`,
           );
         }
       }
 
       this.logger.log(`Djinni returned ${jobs.length} jobs`);
+
       return new JobResponseDto(jobs);
-    } catch (err: any) {
-      this.logger.error(`Djinni scrape error: ${err.message}`);
+    } catch (error: unknown) {
+      const message =
+        error instanceof Error
+          ? error.message
+          : String(error);
+
+      this.logger.error(`Djinni scrape error: ${message}`);
+
       return new JobResponseDto([]);
     }
   }
 
   /**
-   * Parse RSS XML into an array of DjinniRssItem using regex (no XML library).
+   * Builds:
+   *
+   * https://djinni.co/jobs/
+   *   ?all_keywords=Odoo+developer
+   *   &search_type=basic-search
    */
-  private parseRssItems(xml: string): DjinniRssItem[] {
-    const items: DjinniRssItem[] = [];
+  private buildSearchUrl(searchTerm?: string): string {
+    const url = new URL(DJINNI_JOBS_URL);
 
-    const itemBlocks = xml.split(/<item>/i).slice(1);
+    if (searchTerm) {
+      url.searchParams.set('all_keywords', searchTerm);
+      url.searchParams.set('search_type', 'basic-search');
+    }
 
-    for (const block of itemBlocks) {
-      const itemContent = block.split(/<\/item>/i)[0] ?? block;
+    return url.toString();
+  }
 
-      items.push({
-        title: this.extractTag(itemContent, 'title'),
-        link: this.extractTag(itemContent, 'link'),
-        guid: this.extractTag(itemContent, 'guid'),
-        description: this.extractTag(itemContent, 'description'),
-        pubDate: this.extractTag(itemContent, 'pubDate'),
-        category: this.extractTag(itemContent, 'category'),
+  /**
+   * Parses all job cards available on the Djinni search page.
+   *
+   * The full description is already present inside:
+   *
+   * .js-original-text
+   *
+   * even though it is hidden using the d-none class.
+   */
+  private parseJobs(html: string): DjinniHtmlJob[] {
+    const $ = cheerio.load(html);
+    const jobs: DjinniHtmlJob[] = [];
+    const processedLinks = new Set<string>();
+
+    $('a.job_item__header-link').each((_, linkElement) => {
+      const headerLink = $(linkElement);
+
+      const relativeLink = headerLink.attr('href');
+
+      if (!relativeLink) {
+        return;
+      }
+
+      const link = new URL(
+        relativeLink,
+        DJINNI_JOBS_URL,
+      ).toString();
+
+      /*
+       * Захист від дублювання, якщо на сторінці той самий лінк
+       * випадково присутній у кількох елементах.
+       */
+      if (processedLinks.has(link)) {
+        return;
+      }
+
+      processedLinks.add(link);
+
+      const card = headerLink.closest('[id^="job-item-"]');
+
+      /*
+       * Якщо Djinni змінить зовнішній контейнер,
+       * беремо найближчий великий батьківський блок.
+       */
+      const container = card.length
+        ? card
+        : headerLink.parent().parent().parent();
+
+      const title = container
+        .find('.job-item__position')
+        .first()
+        .text()
+        .trim();
+
+      if (!title) {
+        return;
+      }
+
+      const companyName =
+        container
+          .find(
+            '.text-gray-800.opacity-75.font-weight-500',
+          )
+          .first()
+          .text()
+          .trim() || undefined;
+
+      const descriptionHtml =
+        container
+          .find('.js-original-text')
+          .first()
+          .html()
+          ?.trim() ||
+        container
+          .find('.js-truncated-text')
+          .first()
+          .html()
+          ?.trim() ||
+        undefined;
+
+      const location =
+        container
+          .find('.location-text')
+          .first()
+          .text()
+          .trim() || undefined;
+
+      const metadataText = this.normalizeWhitespace(
+        container
+          .find('.location-text')
+          .first()
+          .closest('.fw-medium')
+          .text(),
+      );
+
+      const descriptionText = descriptionHtml
+        ? htmlToPlainText(descriptionHtml)
+        : '';
+
+      const isRemote = this.checkRemote(
+        title,
+        metadataText,
+        descriptionText,
+      );
+
+      const cardId = container.attr('id');
+
+      const id =
+        this.extractIdFromCardId(cardId) ??
+        this.extractIdFromUrl(link);
+
+      const datePosted =
+        this.extractDatePosted(container, $);
+
+      jobs.push({
+        id,
+        title,
+        link,
+        descriptionHtml,
+        companyName,
+        location,
+        datePosted,
+        isRemote,
       });
+    });
+
+    return jobs;
+  }
+
+  /**
+   * Djinni already filters by all_keywords, but this prevents
+   * obviously unrelated jobs from leaking into the result.
+   *
+   * For "Odoo developer", both tokens must exist somewhere
+   * in title + description.
+   */
+  private matchesSearch(
+    job: DjinniHtmlJob,
+    searchTerm: string,
+  ): boolean {
+    const searchableText = this.normalizeForSearch(
+      [
+        job.title,
+        job.descriptionHtml
+          ? htmlToPlainText(job.descriptionHtml)
+          : '',
+        job.companyName ?? '',
+        job.location ?? '',
+      ].join(' '),
+    );
+
+    const searchTokens = this.normalizeForSearch(searchTerm)
+      .split(' ')
+      .filter(token => token.length > 1);
+
+    if (!searchTokens.length) {
+      return true;
     }
 
-    return items;
-  }
-
-  /**
-   * Extract the text content of an XML tag using regex.
-   * Handles both CDATA-wrapped and plain content.
-   */
-  private extractTag(xml: string, tagName: string): string | null {
-    // Try CDATA first: <tag><![CDATA[content]]></tag>
-    const cdataRegex = new RegExp(
-      `<${tagName}[^>]*>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*<\\/${tagName}>`,
-      'i',
+    return searchTokens.every(token =>
+      searchableText.includes(token),
     );
-    const cdataMatch = cdataRegex.exec(xml);
-    if (cdataMatch) return cdataMatch[1].trim();
-
-    // Try plain content: <tag>content</tag>
-    const plainRegex = new RegExp(
-      `<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`,
-      'i',
-    );
-    const plainMatch = plainRegex.exec(xml);
-    if (plainMatch) return plainMatch[1].trim();
-
-    return null;
   }
 
-  /**
-   * Check whether an RSS item matches the given search term.
-   */
-  private matchesSearch(item: DjinniRssItem, searchTerm: string): boolean {
-    const term = searchTerm.toLowerCase();
-    const title = (item.title ?? '').toLowerCase();
-    const description = (item.description ?? '').toLowerCase();
-    const category = (item.category ?? '').toLowerCase();
-
-    return title.includes(term) || description.includes(term) || category.includes(term);
-  }
-
-  /**
-   * Map a parsed RSS item to a JobPostDto.
-   */
   private mapJob(
-    item: DjinniRssItem,
+    parsedJob: DjinniHtmlJob,
     descriptionFormat?: DescriptionFormat,
-  ): JobPostDto | null {
-    if (!item.title || !item.link) return null;
+  ): JobPostDto {
+    const plainDescription = parsedJob.descriptionHtml
+      ? htmlToPlainText(parsedJob.descriptionHtml)
+      : undefined;
 
-    // Process description (Djinni RSS may return HTML)
-    let description: string | undefined = item.description ?? undefined;
-    if (description) {
+    let description: string | undefined;
+
+    if (parsedJob.descriptionHtml) {
       if (descriptionFormat === DescriptionFormat.PLAIN) {
-        description = htmlToPlainText(description);
-      } else if (descriptionFormat === DescriptionFormat.MARKDOWN) {
-        description = markdownConverter(description) ?? description;
+        description = plainDescription;
+      } else if (
+        descriptionFormat === DescriptionFormat.MARKDOWN
+      ) {
+        description =
+          markdownConverter(parsedJob.descriptionHtml) ??
+          plainDescription;
+      } else {
+        description = parsedJob.descriptionHtml;
       }
     }
-
-    // Parse date
-    let datePosted: string | undefined;
-    if (item.pubDate) {
-      try {
-        datePosted = new Date(item.pubDate).toISOString().split('T')[0];
-      } catch {
-        datePosted = undefined;
-      }
-    }
-
-    // Company name not available in RSS feed
-    const companyName: string | null = null;
-
-    // Generate ID from GUID or URL
-    const jobId = this.extractIdFromUrl(item.guid ?? item.link);
-
-    // Check if remote based on title/description
-    const isRemote = this.checkRemote(item);
 
     return new JobPostDto({
-      id: `djinni-${jobId}`,
-      title: item.title,
-      jobUrl: item.link,
+      id: `djinni-${parsedJob.id}`,
+      title: parsedJob.title,
+      jobUrl: parsedJob.link,
       description,
-      companyName,
+      companyName: parsedJob.companyName ?? null,
+
+      /*
+       * $$$ на Djinni — це не реальна зарплата,
+       * а лише відносний рівень зарплати.
+       * Тому в compensation його не записуємо.
+       */
       compensation: undefined,
-      location: null,
-      datePosted,
-      isRemote,
-      emails: extractEmails(description ?? null),
+
+      location: parsedJob.location
+        ? new LocationDto({
+            country: parsedJob.location,
+          })
+        : null,
+      datePosted: parsedJob.datePosted,
+      isRemote: parsedJob.isRemote,
+
+      /*
+       * Email краще шукати у plain text,
+       * а не в HTML із тегами.
+       */
+      emails: extractEmails(plainDescription ?? null),
+
       site: Site.DJINNI,
     });
   }
 
-  /**
-   * Check if a job is remote by searching for "remote" in title and description.
-   */
-  private checkRemote(item: DjinniRssItem): boolean {
-    const title = (item.title ?? '').toLowerCase();
-    const description = (item.description ?? '').toLowerCase();
+  private checkRemote(
+    title: string,
+    metadata: string,
+    description: string,
+  ): boolean {
+    const text = this.normalizeForSearch(
+      `${title} ${metadata} ${description}`,
+    );
 
-    return title.includes('remote') || description.includes('remote');
+    const remoteMarkers = [
+      'remote',
+      'remotely',
+      'fully remote',
+      'full remote',
+      'тільки віддалено',
+      'віддалено',
+      'дистанційно',
+      'удаленно',
+      'полностью удаленно',
+    ];
+
+    return remoteMarkers.some(marker =>
+      text.includes(marker),
+    );
   }
 
   /**
-   * Extract a short ID from a URL by using the last path segment.
+   * Searches for a tooltip such as:
+   *
+   * title="16:36 30.07.2026"
+   */
+  private extractDatePosted(
+    container: cheerio.Cheerio<any>,
+    $: cheerio.CheerioAPI,
+  ): string | undefined {
+    let rawDate: string | undefined;
+
+    container.find('[title]').each((_, element) => {
+      const title = $(element).attr('title')?.trim();
+
+      if (
+        title &&
+        /^\d{2}:\d{2}\s+\d{2}\.\d{2}\.\d{4}$/.test(title)
+      ) {
+        rawDate = title;
+        return false;
+      }
+
+      return;
+    });
+
+    if (!rawDate) {
+      return undefined;
+    }
+
+    const match =
+      /^\d{2}:\d{2}\s+(\d{2})\.(\d{2})\.(\d{4})$/.exec(
+        rawDate,
+      );
+
+    if (!match) {
+      return undefined;
+    }
+
+    const [, day, month, year] = match;
+
+    return `${year}-${month}-${day}`;
+  }
+
+  private extractIdFromCardId(
+    cardId?: string,
+  ): string | undefined {
+    if (!cardId) {
+      return undefined;
+    }
+
+    const match = /^job-item-(\d+)$/.exec(cardId);
+
+    return match?.[1];
+  }
+
+  /**
+   * For:
+   *
+   * /jobs/816609-odoo-developer/
+   *
+   * returns:
+   *
+   * 816609
    */
   private extractIdFromUrl(url: string): string {
     try {
-      const parsed = new URL(url);
-      const segments = parsed.pathname.split('/').filter(Boolean);
-      return segments[segments.length - 1] ?? this.hashString(url);
+      const parsedUrl = new URL(url);
+
+      const match =
+        /\/jobs\/(\d+)(?:-[^/]+)?\/?/.exec(
+          parsedUrl.pathname,
+        );
+
+      if (match?.[1]) {
+        return match[1];
+      }
+
+      const segments = parsedUrl.pathname
+        .split('/')
+        .filter(Boolean);
+
+      return (
+        segments[segments.length - 1] ??
+        this.hashString(url)
+      );
     } catch {
       return this.hashString(url);
     }
   }
 
-  /**
-   * Simple string hash for fallback IDs.
-   */
-  private hashString(str: string): string {
+  private normalizeForSearch(value: string): string {
+    return this.normalizeWhitespace(value)
+      .toLowerCase()
+      .replace(/[.,;:!?()[\]{}"'`/\\|_-]+/g, ' ');
+  }
+
+  private normalizeWhitespace(value: string): string {
+    return value.replace(/\s+/g, ' ').trim();
+  }
+
+  private hashString(value: string): string {
     let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
+
+    for (let index = 0; index < value.length; index++) {
+      const char = value.charCodeAt(index);
       hash = ((hash << 5) - hash + char) | 0;
     }
+
     return Math.abs(hash).toString(36);
   }
 }

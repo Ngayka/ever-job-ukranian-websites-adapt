@@ -1,8 +1,10 @@
-export interface DjinniRssItem {
-  title: string | null;
-  link: string | null;
-  guid: string | null;
-  description: string | null;
-  pubDate: string | null;
-  category: string | null;
+export interface DjinniHtmlJob {
+  id: string;
+  title: string;
+  link: string;
+  descriptionHtml?: string;
+  companyName?: string;
+  location?: string;
+  datePosted?: string;
+  isRemote: boolean;
 }

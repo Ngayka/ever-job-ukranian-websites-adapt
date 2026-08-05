@@ -3,6 +3,14 @@
 > Append-only log of every doc/spec edit. **Newest entry at the top.** This is a
 > human-readable audit trail; for source-code history, see `git log`.
 
+## 2026-08-04 — Telegram source catalog (Spec 5024)
+
+Inventoried all `packages/plugins/source-*` packages and generated a unique, evidence-based
+Telegram-bot catalog with independent region and source-type classifications. Added the JSON
+catalog, standalone Python mapping/filter helper, exhaustive review report, Spec Kit artifacts,
+and an open question documenting the conservative treatment of uncertain company-feed regions.
+No scraper, enum, registry, API, dependency, test, or build configuration was changed.
+
 ---
 
 ## 2026-08-02 — Retired source reference cleanup (Spec 1678)
