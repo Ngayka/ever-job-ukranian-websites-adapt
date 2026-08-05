@@ -1816,6 +1816,7 @@ import { WeeztixModule } from './source-company-weeztix';
 import { XSARUSModule } from './source-company-xsarus';
 import { HappyMondayModule } from './source-happymonday';
 import { WorkUaModule } from './source-workua';
+import { UkraineOdooCompaniesModule } from './source-ukraine-odoo-companies';
 export const ALL_SOURCE_MODULES = [
   FourDayWeekModule,
   AcademiccareersModule,
@@ -3625,4 +3626,5 @@ export const ALL_SOURCE_MODULES = [
   XSARUSModule,
   HappyMondayModule,
   WorkUaModule,
+  UkraineOdooCompaniesModule,
 ];

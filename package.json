@@ -6,7 +6,8 @@
   "license": "MIT",
   "workspaces": [
     "apps/*",
-    "packages/*"
+    "packages/*",
+    "packages/plugins/*"
   ],
   "scripts": {
     "build": "npx nx run-many --target=build --all",
