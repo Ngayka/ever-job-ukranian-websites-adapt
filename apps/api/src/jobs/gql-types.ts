@@ -1,4 +1,13 @@
 import { ObjectType, Field, InputType, Int, Float, ID, registerEnumType } from '@nestjs/graphql';
+import {
+  IsArray,
+  IsBoolean,
+  IsEnum,
+  IsInt,
+  IsOptional,
+  IsString,
+  Min,
+} from 'class-validator';
 import { Site } from '@ever-jobs/models';
 
 // ── Register the Site enum for GraphQL ───────────────────
@@ -12,27 +21,45 @@ registerEnumType(Site, {
 @InputType()
 export class SearchJobsInput {
   @Field(() => [Site], { nullable: true, description: 'Sources to search (omit for all)' })
+  @IsOptional()
+  @IsArray()
+  @IsEnum(Site, { each: true })
   siteType?: Site[];
 
   @Field({ description: 'Search term / keywords' })
+  @IsString()
   searchTerm!: string;
 
   @Field({ nullable: true, description: 'Location filter (city, state, country)' })
+  @IsOptional()
+  @IsString()
   location?: string;
 
   @Field(() => Int, { nullable: true, defaultValue: 20, description: 'Number of results wanted per source' })
+  @IsOptional()
+  @IsInt()
+  @Min(1)
   resultsWanted?: number;
 
   @Field({ nullable: true, description: 'Country code (e.g. USA, UK, DE)' })
+  @IsOptional()
+  @IsString()
   country?: string;
 
   @Field(() => Int, { nullable: true, description: 'Search radius in miles' })
+  @IsOptional()
+  @IsInt()
+  @Min(0)
   distance?: number;
 
   @Field({ nullable: true, description: 'Company slug for ATS sources' })
+  @IsOptional()
+  @IsString()
   companySlug?: string;
 
   @Field({ nullable: true, defaultValue: 'markdown', description: 'Description format: markdown, html, or text' })
+  @IsOptional()
+  @IsString()
   descriptionFormat?: string;
 
   @Field({
@@ -41,6 +68,8 @@ export class SearchJobsInput {
     description:
       'Cross-source deduplication. Default true — collapses identical or near-duplicate jobs surfaced by multiple sources into one record. Pass false to keep every observation as a separate result (Spec 003 / FR-1).',
   })
+  @IsOptional()
+  @IsBoolean()
   dedup?: boolean;
 }
 

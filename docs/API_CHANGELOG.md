@@ -65,9 +65,9 @@ Total sources expanded from 144 to 158.
 **Phase 19 — Tech niche & crypto (5):** RailsJobs, ElixirJobs, Crunchboard, CryptocurrencyJobs, HasJob
 **Phase 20 — European regional (5):** iCrunchdata, SwissDevJobs, GermanTechJobs, VirtualVocations, NoFluffJobs
 **Phase 21 — Niche & academic (5):** GreenJobsBoard, EuroJobs, OpenSourceDesignJobs, AcademicCareers, RemoteFirstJobs
-**Phase 22 — Eastern European, CIS & Singapore (4):** Djinni (Ukraine), HeadHunter (Russia/CIS), HabrCareer (Russia), MyCareersFuture (Singapore)
+**Phase 22 — Eastern European & Singapore (2):** Djinni (Ukraine), MyCareersFuture (Singapore)
 
-Total sources expanded from 126 to 144.
+Total sources expanded from 126 to 142.
 
 ## [0.8.0] — 2026-02-20
 

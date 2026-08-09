@@ -1,5 +1,10 @@
 export enum Site {
   LINKEDIN = 'linkedin',
+  UKRAINE_ODOO_COMPANIES = 'UKRAINE_ODOO_COMPANIES',
+  ODOO_JOBS = 'ODOO_JOBS',
+  DOU = "dou",
+  WORKUA = "workua",
+  HAPPYMONDAY = "happymonday",
   INDEED = 'indeed',
   ZIP_RECRUITER = 'zip_recruiter',
   GLASSDOOR = 'glassdoor',
@@ -168,8 +173,6 @@ export enum Site {
   REMOTEFIRSTJOBS = 'remotefirstjobs',
   // Phase 22: Eastern European, CIS & Singapore expansion
   DJINNI = 'djinni',
-  HEADHUNTER = 'headhunter',
-  HABRCAREER = 'habrcareer',
   MYCAREERSFUTURE = 'mycareersfuture',
   // Phase 23: Japan, Nordic & Swiss expansion
   JOBSINJAPAN = 'jobsinjapan',
@@ -3474,6 +3477,7 @@ export enum Site {
   WEEZTIX = 'weeztix',
   // Phase 1676: Spec 1676 — Source Company Plugin: XSARUS
   XSARUS = 'xsarus',
+
 }
 
 /**

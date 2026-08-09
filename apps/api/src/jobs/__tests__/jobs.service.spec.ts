@@ -190,8 +190,6 @@ jest.mock('@ever-jobs/source-academiccareers', () => mockSourceFactory());
 jest.mock('@ever-jobs/source-remotefirstjobs', () => mockSourceFactory());
 // Phase 22: Eastern European, CIS & Singapore expansion
 jest.mock('@ever-jobs/source-djinni', () => mockSourceFactory());
-jest.mock('@ever-jobs/source-headhunter', () => mockSourceFactory());
-jest.mock('@ever-jobs/source-habrcareer', () => mockSourceFactory());
 jest.mock('@ever-jobs/source-mycareersfuture', () => mockSourceFactory());
 // Phase 23: Japan, Nordic & Swiss expansion
 jest.mock('@ever-jobs/source-jobsinjapan', () => mockSourceFactory());

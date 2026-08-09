@@ -8,6 +8,27 @@
 >
 > Add new questions at the **top**. Resolved questions stay here for traceability.
 
+## Q-SOURCE-CATALOG-1 — Region semantics for company-specific career feeds
+
+**Context:** Spec 5024. Most `source-company-*` packages prove that they are tied to a
+specific employer, but their decorator and endpoint configuration often do not prove the
+geographic distribution of vacancies. Inferring the region from headquarters would violate
+the catalog requirement, while treating every company as global would overstate coverage.
+
+**Options:**
+
+- **A. Use `WORLDWIDE` only for clearly multi-region employer career sites and use `OTHER`
+  with `medium` confidence for the remainder.**
+- **B. Infer region from company headquarters.** This is simple but does not describe the
+  coverage of the career feed.
+- **C. Mark every company source `WORLDWIDE`.** This makes bot filtering convenient but is
+  not supported by repository evidence for local employers.
+
+**Default (proceeding):** **A** — conservative classification preserves evidence quality and
+keeps uncertain records visible for manual review.
+
+**Resolution:** _pending review._
+
 ---
 
 ## Q-WORKABLE-1 — Workable board-name anchor + empty-but-real accounts

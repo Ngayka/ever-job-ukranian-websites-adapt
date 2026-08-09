@@ -49,9 +49,9 @@ function createServer(): Server {
       {
         name: 'search_jobs',
         description:
-          'Search for jobs across 166+ sources including LinkedIn, Indeed, Glassdoor, ' +
+          'Search for jobs across 164+ sources including LinkedIn, Indeed, Glassdoor, ' +
           'Google Careers, Meta, Netflix, Stripe, OpenAI, IBM, Boeing, Zoom, BuiltIn, ' +
-          'HeadHunter (Russia/CIS), Djinni (Ukraine), Habr Career, MyCareersFuture (Singapore), ' +
+          'Djinni (Ukraine), MyCareersFuture (Singapore), ' +
           'Duunitori (Finland), Jobs.ch (Switzerland), Jobs in Japan, ' +
           'Guardian Jobs (UK), AndroidJobs, iOS Dev Jobs, ' +
           'DevOpsJobs, Functional Works, PowerToFly, Clojure Jobs, EcoJobs, ' +
@@ -357,7 +357,7 @@ Filter for remote positions:
   search_jobs(query: "frontend developer", remote_only: true)
 
 ## Source Types
-- **Job Boards**: linkedin, indeed, glassdoor, ziprecruiter, dice, monster, builtin, snagajob, dribbble, themuse, startupjobs, fourdayweek, web3career, echojobs, jobstreet, careeronestop, arbeitsagentur, hackernews, landingjobs, authenticjobs, cryptojobslist, higheredjobs, fossjobs, larajobs, pythonjobs, drupaljobs, golangjobs, wordpressjobs, infojobs, jobtechdev, francetravail, navjobs, jobsacuk, jobindex, getonboard, freelancercom, joinrise, canadajobbank, reliefweb, undpjobs, devitjobs, pyjobs, vuejobs, conservationjobs, coroflot, berlinstartupjobs, railsjobs, elixirjobs, crunchboard, cryptocurrencyjobs, hasjob, icrunchdata, swissdevjobs, germantechjobs, nofluffjobs, greenjobsboard, eurojobs, opensourcedesignjobs, academiccareers, djinni, headhunter, habrcareer, mycareersfuture, duunitori, jobsinjapan, jobsch, guardianjobs, androidjobs, iosdevjobs, devopsjobs, functionalworks, powertofly, clojurejobs, ecojobs, techcareers, jobsdb, sercanto
+- **Job Boards**: linkedin, indeed, glassdoor, ziprecruiter, dice, monster, builtin, snagajob, dribbble, themuse, startupjobs, fourdayweek, web3career, echojobs, jobstreet, careeronestop, arbeitsagentur, hackernews, landingjobs, authenticjobs, cryptojobslist, higheredjobs, fossjobs, larajobs, pythonjobs, drupaljobs, golangjobs, wordpressjobs, infojobs, jobtechdev, francetravail, navjobs, jobsacuk, jobindex, getonboard, freelancercom, joinrise, canadajobbank, reliefweb, undpjobs, devitjobs, pyjobs, vuejobs, conservationjobs, coroflot, berlinstartupjobs, railsjobs, elixirjobs, crunchboard, cryptocurrencyjobs, hasjob, icrunchdata, swissdevjobs, germantechjobs, nofluffjobs, greenjobsboard, eurojobs, opensourcedesignjobs, academiccareers, djinni, mycareersfuture, duunitori, jobsinjapan, jobsch, guardianjobs, androidjobs, iosdevjobs, devopsjobs, functionalworks, powertofly, clojurejobs, ecojobs, techcareers, jobsdb, sercanto
 - **Remote Boards**: remoteok, remotive, weworkremotely, jobicy, himalayas, arbeitnow, workingnomads, nodesk, jobspresso, realworkfromanywhere, virtualvocations, remotefirstjobs
 - **ATS Platforms**: greenhouse, lever, ashby, workable, workday, manatal, paylocity, bullhorn, phenom, deel, fountain, loxo, breezyhr, comeet, pinpoint, jobylon, homerun, jobscore, talentlyft, crelate, ismartrecruit, recruiterflow, and more
 - **API Aggregators**: adzuna, reed, jooble, careerjet, usajobs, findwork, jobdataapi, talroo

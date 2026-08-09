@@ -391,6 +391,7 @@ import { DevITJobsModule } from './source-devitjobs';
 import { DevopsjobsModule } from './source-devopsjobs';
 import { DiceModule } from './source-dice';
 import { DjinniModule } from './source-djinni';
+import { DouModule } from './source-dou';
 import { DribbbleModule } from './source-dribbble';
 import { DrupalJobsModule } from './source-drupaljobs';
 import { DuunitoriModule } from './source-duunitori';
@@ -411,10 +412,8 @@ import { GolangJobsModule } from './source-golangjobs';
 import { GoogleModule } from './source-google';
 import { GreenJobsBoardModule } from './source-greenjobsboard';
 import { GuardianjobsModule } from './source-guardianjobs';
-import { HabrcareerModule } from './source-habrcareer';
 import { HackerNewsModule } from './source-hackernews';
 import { HasJobModule } from './source-hasjob';
-import { HeadhunterModule } from './source-headhunter';
 import { HigherEdJobsModule } from './source-higheredjobs';
 import { HimalayasModule } from './source-himalayas';
 import { IcrunchdataModule } from './source-icrunchdata';
@@ -1815,6 +1814,10 @@ import { WATCHVICELeingangECommerceModule } from './source-company-watchvicelein
 import { WEBBTradersModule } from './source-company-webbtraders';
 import { WeeztixModule } from './source-company-weeztix';
 import { XSARUSModule } from './source-company-xsarus';
+import { HappyMondayModule } from './source-happymonday';
+import { WorkUaModule } from './source-workua';
+import { UkraineOdooCompaniesModule } from './source-ukraine-odoo-companies';
+import { OdooJobsModule } from './source-odoo-jobs';
 export const ALL_SOURCE_MODULES = [
   FourDayWeekModule,
   AcademiccareersModule,
@@ -2201,6 +2204,7 @@ export const ALL_SOURCE_MODULES = [
   DevopsjobsModule,
   DiceModule,
   DjinniModule,
+  DouModule,
   DribbbleModule,
   DrupalJobsModule,
   DuunitoriModule,
@@ -2221,10 +2225,8 @@ export const ALL_SOURCE_MODULES = [
   GoogleModule,
   GreenJobsBoardModule,
   GuardianjobsModule,
-  HabrcareerModule,
   HackerNewsModule,
   HasJobModule,
-  HeadhunterModule,
   HigherEdJobsModule,
   HimalayasModule,
   IcrunchdataModule,
@@ -3623,4 +3625,8 @@ export const ALL_SOURCE_MODULES = [
   WEBBTradersModule,
   WeeztixModule,
   XSARUSModule,
+  HappyMondayModule,
+  WorkUaModule,
+  UkraineOdooCompaniesModule,
+  OdooJobsModule,
 ];

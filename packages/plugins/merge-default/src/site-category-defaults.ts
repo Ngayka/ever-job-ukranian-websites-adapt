@@ -107,8 +107,6 @@ const PAIRS: ReadonlyArray<readonly [Site, MergeCategory]> = [
   [Site.INTERNSHALA, 'regional'],
   [Site.INFOJOBS, 'regional'],
   [Site.GETONBOARD, 'regional'],
-  [Site.HABRCAREER, 'regional'],
-  [Site.HEADHUNTER, 'regional'],
   [Site.DJINNI, 'regional'],
 
   // ─── Remote-only boards ─────────────────────────────────────────────

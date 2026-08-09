@@ -3,7 +3,28 @@
 > Append-only log of every doc/spec edit. **Newest entry at the top.** This is a
 > human-readable audit trail; for source-code history, see `git log`.
 
+## 2026-08-05 — Official Odoo Jobs source scaffold (Spec 5025)
+
+Added and registered `@ever-jobs/source-odoo-jobs` for the official Odoo careers page,
+including its enum value, aliases, public exports, shared-HTTP-client service, and targeted E2E
+coverage. The service deliberately returns no parsed jobs: verified Odoo HTML selectors and
+the `parseJobs` implementation are deferred to a follow-up change.
+
 ---
+
+## 2026-08-04 — Telegram source catalog (Spec 5024)
+
+Inventoried all `packages/plugins/source-*` packages and generated a unique, evidence-based
+Telegram-bot catalog with independent region and source-type classifications. Added the JSON
+catalog, standalone Python mapping/filter helper, exhaustive review report, Spec Kit artifacts,
+and an open question documenting the conservative treatment of uncertain company-feed regions.
+No scraper, enum, registry, API, dependency, test, or build configuration was changed.
+
+---
+
+## 2026-08-02 — Retired source reference cleanup (Spec 1678)
+
+Removed stale enum, registry, CLI, test, MCP catalogue, merge-default, and documentation entries for two intentionally retired source packages. Surviving source implementations were not changed. The monorepo build and repository-wide retired-identifier scan form the acceptance gate.
 
 > **Run #100 reminder — Q-042 has been pending review since run #84 (~119 runs / ~119 hours of agent wall-clock). Default C continues; user owner please review at convenience.**
 

@@ -1,4 +1,6 @@
 import { Module } from '@nestjs/common';
+import { PluginModule } from '@ever-jobs/plugin';
+import { DouModule } from '@ever-jobs/source-dou';
 import { LinkedInModule } from '@ever-jobs/source-linkedin';
 import { IndeedModule } from '@ever-jobs/source-indeed';
 import { GlassdoorModule } from '@ever-jobs/source-glassdoor';
@@ -158,8 +160,6 @@ import { AcademiccareersModule } from '@ever-jobs/source-academiccareers';
 import { RemotefirstjobsModule } from '@ever-jobs/source-remotefirstjobs';
 // Phase 22: Eastern European, CIS & Singapore expansion
 import { DjinniModule } from '@ever-jobs/source-djinni';
-import { HeadhunterModule } from '@ever-jobs/source-headhunter';
-import { HabrcareerModule } from '@ever-jobs/source-habrcareer';
 import { MycareersfutureModule } from '@ever-jobs/source-mycareersfuture';
 // Phase 23: Japan, Nordic & Swiss expansion
 import { JobsInJapanModule } from '@ever-jobs/source-jobsinjapan';
@@ -182,10 +182,12 @@ import { JobsService } from '../../api/src/jobs/jobs.service';
 import { SearchCommand } from './commands/search.command';
 import { CompareCommand } from './commands/compare.command';
 
+
 @Module({
   imports: [
     // Search-based sources
     LinkedInModule,
+    PluginModule,
     IndeedModule,
     GlassdoorModule,
     ZipRecruiterModule,
@@ -357,8 +359,7 @@ import { CompareCommand } from './commands/compare.command';
     RemotefirstjobsModule,
     // Phase 22: Eastern European, CIS & Singapore expansion
     DjinniModule,
-    HeadhunterModule,
-    HabrcareerModule,
+    DouModule,
     MycareersfutureModule,
     // Phase 23: Japan, Nordic & Swiss expansion
     JobsInJapanModule,
