@@ -97,73 +97,110 @@ export class OdooJobsService implements IScraper {
    * isTechnicalDeveloperJob().
    */
   private parseJobs(html: string): OdooJob[] {
-    const $ = cheerio.load(html);
+  const $ = cheerio.load(html);
 
-    const jobs: OdooJob[] = [];
-    const processedUrls = new Set<string>();
+  this.logger.debug(
+  `Odoo HTML size: ${html.length}`,
+  );
 
-    const jobSelector =
-      'a.text-decoration-none.text-reset.p-3[href*="/jobs/"]';
+  this.logger.debug(
+  `Odoo /jobs/ links found: ${$('a[href*="/jobs/"]').length}`,
+  );
 
-    $(jobSelector).each((_, element) => {
-      const card = $(element);
+  const jobs: OdooJob[] = [];
+  const processedUrls = new Set<string>();
 
-      const title = this.normalizeWhitespace(
-        card
-          .find('.x_wd_job_heading h3')
+  $('a[href*="/jobs/"]').each((_, element) => {
+    const link = $(element);
+
+    const href = link.attr('href')?.trim();
+
+    if (!href) {
+      return;
+    }
+
+    const jobUrl = this.createAbsoluteUrl(href);
+
+    if (!jobUrl || processedUrls.has(jobUrl)) {
+      return;
+    }
+
+    /*
+     * Ignore the general /jobs page and non-vacancy links.
+     */
+    try {
+      const url = new URL(jobUrl);
+
+      if (
+        url.pathname === '/jobs' ||
+        url.pathname === '/jobs/'
+      ) {
+        return;
+      }
+    } catch {
+      return;
+    }
+
+    /*
+     * Odoo changes listing-page markup from time to time,
+     * therefore do not rely on one specific CSS class.
+     */
+    const title = this.normalizeWhitespace(
+      link.find('h1, h2, h3, h4').first().text() ||
+      link.attr('title') ||
+      link.text(),
+    );
+
+    if (!title) {
+      return;
+    }
+
+    if (!this.isTechnicalDeveloperJob(title)) {
+      return;
+    }
+
+    processedUrls.add(jobUrl);
+
+    /*
+     * Try several possible containers around the vacancy link.
+     */
+    const card =
+      link.closest(
+        'article, .card, .row, [class*="job"], [class*="position"]',
+      ).first();
+
+    const container = card.length ? card : link;
+
+    const description = this.normalizeWhitespace(
+      container
+        .find(
+          'p, [class*="description"], [class*="summary"]',
+        )
+        .first()
+        .text(),
+    ) || undefined;
+
+    const location =
+      this.normalizeWhitespace(
+        container
+          .find(
+            '[itemprop="streetAddress"], [itemprop="addressLocality"], [class*="location"]',
+          )
           .first()
           .text(),
-      );
+      ) || undefined;
 
-      const href = card.attr('href')?.trim();
-
-      if (!title || !href) {
-        return;
-      }
-
-      if (!this.isTechnicalDeveloperJob(title)) {
-        return;
-      }
-
-      const jobUrl = this.createAbsoluteUrl(href);
-
-      if (!jobUrl || processedUrls.has(jobUrl)) {
-        return;
-      }
-
-      processedUrls.add(jobUrl);
-
-      const descriptionHtml = card
-        .find('.x_wd_job_description')
-        .first()
-        .html()
-        ?.trim();
-
-      const description = descriptionHtml
-        ? this.normalizeWhitespace(
-            htmlToPlainText(descriptionHtml),
-          )
-        : undefined;
-
-      const location =
-        this.normalizeWhitespace(
-          card
-            .find('[itemprop="streetAddress"]')
-            .first()
-            .text(),
-        ) || undefined;
-
-      jobs.push({
-        id: `odoo-${this.extractJobId(jobUrl)}`,
-        title,
-        jobUrl,
-        description,
-        location,
-      });
+    jobs.push({
+      id: `odoo-${this.extractJobId(jobUrl)}`,
+      title,
+      jobUrl,
+      description,
+      location,
     });
+  });
 
-    return jobs;
-  }
+  return jobs;
+}
 
   /**
    * Odoo search results may include roles such as "Business Developer".
