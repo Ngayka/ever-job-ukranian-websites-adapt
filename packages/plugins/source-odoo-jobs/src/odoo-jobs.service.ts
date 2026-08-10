@@ -54,6 +54,7 @@ export class OdooJobsService implements IScraper {
     try {
       const response = await client.get(ODOO_JOBS_URL, {
         params: {
+          all_countries: 1,
           search: input.searchTerm,
           order: 'name asc',
         },
