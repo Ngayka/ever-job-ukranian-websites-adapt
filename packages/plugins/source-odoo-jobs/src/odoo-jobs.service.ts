@@ -194,6 +194,8 @@ export class OdooJobsService implements IScraper {
     }
 
     const technicalMarkers = [
+      'odoo developer',
+      'odoo experience developer',
       'backend developer',
       'back end developer',
       'frontend developer',
