@@ -50,7 +50,12 @@ export class OdooJobsService implements IScraper {
     );
 
     try {
-      const response = await client.get(ODOO_JOBS_URL);
+      const response = await client.get(ODOO_JOBS_URL, {
+        params: input.searchTerm
+          ? { search: input.searchTerm }
+          : undefined,
+      });
+
       const html = response.data;
 
       if (!html || typeof html !== 'string') {
