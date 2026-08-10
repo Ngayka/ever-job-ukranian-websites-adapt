@@ -48,9 +48,16 @@ export class OdooJobsService implements IScraper {
     this.logger.log(
       `Fetching official Odoo jobs (resultsWanted=${resultsWanted})`,
     );
-
+    this.logger.debug(
+    `Odoo searchTerm="${input.searchTerm ?? ''}"`,
+  );
     try {
-      const response = await client.get(ODOO_JOBS_URL);
+      const response = await client.get(ODOO_JOBS_URL, {
+        params: {
+          search: input.searchTerm,
+          order: 'name asc',
+        },
+      });
       const html = response.data;
 
       if (!html || typeof html !== 'string') {

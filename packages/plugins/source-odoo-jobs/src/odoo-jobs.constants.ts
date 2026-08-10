@@ -1,5 +1,5 @@
 export const ODOO_JOBS_URL =
-  'https://www.odoo.com/jobs';
+  'https://www.odoo.com/en_US/jobs';
 
 export const ODOO_JOBS_HEADERS = {
   Accept:
