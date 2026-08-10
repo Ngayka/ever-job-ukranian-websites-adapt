@@ -106,7 +106,13 @@ export class OdooJobsService implements IScraper {
   this.logger.debug(
   `Odoo /jobs/ links found: ${$('a[href*="/jobs/"]').length}`,
   );
+  $('a[href*="/jobs/"]').each((_, element) => {
+  const link = $(element);
 
+  this.logger.debug(
+    `Odoo link: href="${link.attr('href')}" text="${this.normalizeWhitespace(link.text())}"`,
+  );
+});
   const jobs: OdooJob[] = [];
   const processedUrls = new Set<string>();
 
