@@ -18,6 +18,7 @@ import {
 } from '@ever-jobs/common';
 import { DOU_RSS_URL, DOU_HEADERS } from './dou.constants';
 import { DouRssItem } from './dou.types';
+import * as cheerio from 'cheerio';
 
 @SourcePlugin({
   site: Site.DOU,
@@ -28,58 +29,158 @@ import { DouRssItem } from './dou.types';
 export class DouService implements IScraper {
   private readonly logger = new Logger(DouService.name);
 
+  // async scrape(input: ScraperInputDto): Promise<JobResponseDto> {
+  //   const resultsWanted = input.resultsWanted ?? 25;
+  //
+  //   const client = createHttpClient({
+  //     proxies: input.proxies,
+  //     caCert: input.caCert,
+  //     timeout: input.requestTimeout,
+  //   });
+  //   client.setHeaders(DOU_HEADERS);
+  //
+  //   this.logger.log(
+  //     `Fetching Dou RSS feed (resultsWanted=${resultsWanted})`,
+  //   );
+  //
+  //   try {
+  //     const response = await client.get(DOU_RSS_URL);
+  //     const xml = response.data;
+  //
+  //     if (!xml || typeof xml !== 'string') {
+  //       this.logger.warn('Empty or invalid RSS response from Dou');
+  //       return new JobResponseDto([]);
+  //     }
+  //
+  //     const items = this.parseRssItems(xml);
+  //     this.logger.log(`Parsed ${items.length} items from Dou RSS feed`);
+  //
+  //     const jobs: JobPostDto[] = [];
+  //
+  //     for (const item of items) {
+  //       if (jobs.length >= resultsWanted) break;
+  //
+  //       try {
+  //         if (input.searchTerm && !this.matchesSearch(item, input.searchTerm)) {
+  //           continue;
+  //         }
+  //
+  //         const job = this.mapJob(item, input.descriptionFormat);
+  //         if (job) jobs.push(job);
+  //       } catch (err: any) {
+  //         this.logger.warn(
+  //           `Error mapping Dou job ${item.link}: ${err.message}`,
+  //         );
+  //       }
+  //     }
+  //
+  //     this.logger.log(`Dou returned ${jobs.length} jobs`);
+  //     return new JobResponseDto(jobs);
+  //   } catch (err: any) {
+  //     this.logger.error(`Dou scrape error: ${err.message}`);
+  //     return new JobResponseDto([]);
+  //   }
+  // }
+
   async scrape(input: ScraperInputDto): Promise<JobResponseDto> {
-    const resultsWanted = input.resultsWanted ?? 25;
+  const searchTerm = input.searchTerm?.trim();
 
-    const client = createHttpClient({
-      proxies: input.proxies,
-      caCert: input.caCert,
-      timeout: input.requestTimeout,
-    });
-    client.setHeaders(DOU_HEADERS);
+  if (!searchTerm) {
+    this.logger.warn('Dou requires a search term');
+    return new JobResponseDto([]);
+  }
 
-    this.logger.log(
-      `Fetching Dou RSS feed (resultsWanted=${resultsWanted})`,
-    );
+  const resultsWanted = input.resultsWanted ?? 25;
 
-    try {
-      const response = await client.get(DOU_RSS_URL);
-      const xml = response.data;
+  const client = createHttpClient({
+    proxies: input.proxies,
+    caCert: input.caCert,
+    timeout: input.requestTimeout,
+  });
 
-      if (!xml || typeof xml !== 'string') {
-        this.logger.warn('Empty or invalid RSS response from Dou');
-        return new JobResponseDto([]);
-      }
+  client.setHeaders(DOU_HEADERS);
 
-      const items = this.parseRssItems(xml);
-      this.logger.log(`Parsed ${items.length} items from Dou RSS feed`);
+  const url =
+    `https://jobs.dou.ua/vacancies/?search=${encodeURIComponent(searchTerm)}`;
 
-      const jobs: JobPostDto[] = [];
+  this.logger.log(
+    `Fetching Dou search: "${searchTerm}" (resultsWanted=${resultsWanted})`,
+  );
 
-      for (const item of items) {
-        if (jobs.length >= resultsWanted) break;
+  try {
+    const response = await client.get(url);
+    const html = response.data;
 
-        try {
-          if (input.searchTerm && !this.matchesSearch(item, input.searchTerm)) {
-            continue;
-          }
-
-          const job = this.mapJob(item, input.descriptionFormat);
-          if (job) jobs.push(job);
-        } catch (err: any) {
-          this.logger.warn(
-            `Error mapping Dou job ${item.link}: ${err.message}`,
-          );
-        }
-      }
-
-      this.logger.log(`Dou returned ${jobs.length} jobs`);
-      return new JobResponseDto(jobs);
-    } catch (err: any) {
-      this.logger.error(`Dou scrape error: ${err.message}`);
+    if (!html || typeof html !== 'string') {
+      this.logger.warn('Empty or invalid response from Dou');
       return new JobResponseDto([]);
     }
+
+    const $ = cheerio.load(html);
+    const jobs: JobPostDto[] = [];
+
+    $('.l-vacancy').each((_, element) => {
+      if (jobs.length >= resultsWanted) return false;
+
+      const card = $(element);
+
+      const titleLink = card.find('a.vt').first();
+      const title = titleLink.text().trim();
+      const jobUrl = titleLink.attr('href');
+
+      if (!title || !jobUrl) {
+        return;
+      }
+
+      const companyName =
+        card.find('a.company').first().text().trim() || null;
+
+      const locationText =
+        card.find('.cities').first().text().trim() || null;
+
+      const description =
+        card.find('.sh-info').first().text().trim() || undefined;
+
+      const isRemote = [
+        title,
+        locationText,
+        description,
+      ]
+        .filter(Boolean)
+        .join(' ')
+        .toLowerCase()
+        .includes('віддалено');
+
+      const jobId = this.extractIdFromUrl(jobUrl);
+
+      jobs.push(
+        new JobPostDto({
+          id: `dou-${jobId}`,
+          title,
+          jobUrl,
+          companyName,
+          description,
+          compensation: undefined,
+          location: locationText
+            ? new LocationDto({
+                city: locationText,
+              })
+            : null,
+          datePosted: undefined,
+          isRemote,
+          emails: extractEmails(description ?? null),
+          site: Site.DOU,
+        }),
+      );
+    });
+
+    this.logger.log(`Dou returned ${jobs.length} jobs`);
+    return new JobResponseDto(jobs);
+  } catch (err: any) {
+    this.logger.error(`Dou scrape error: ${err.message}`);
+    return new JobResponseDto([]);
   }
+}
 
   /**
    * Parse RSS XML into an array of DouRssItem using regex (no XML library).

@@ -196,31 +196,39 @@ export class HappyMondayService implements IScraper {
   }
 
   private extractCompany(
-    card: cheerio.Cheerio<any>,
-  ): string | null {
-    const titleContainer = card
-      .find('.vacancies__search-item__titles')
-      .first();
+  card: cheerio.Cheerio<any>,
+): string | null {
+  return this.cleanText(
+    card.find('.job_card_company').first().text(),
+  );
+}
 
-    let company: string | null = null;
-
-    titleContainer.children('span').each((_, element) => {
-      const span = titleContainer.find(element);
-
-      // Пропускаємо industry та інші службові plate-елементи.
-      if (span.hasClass('job_plate')) {
-        return;
-      }
-
-      const text = this.cleanText(span.text());
-
-      if (text && !company) {
-        company = text;
-      }
-    });
-
-    return company;
-  }
+  // private extractCompany(
+  //   card: cheerio.Cheerio<any>,
+  // ): string | null {
+  //   const titleContainer = card
+  //     .find('.vacancies__search-item__titles')
+  //     .first();
+  //
+  //   let company: string | null = null;
+  //
+  //   titleContainer.children('span').each((_, element) => {
+  //     const span = titleContainer.find(element);
+  //
+  //     // Пропускаємо industry та інші службові plate-елементи.
+  //     if (span.hasClass('job_plate')) {
+  //       return;
+  //     }
+  //
+  //     const text = this.cleanText(span.text());
+  //
+  //     if (text && !company) {
+  //       company = text;
+  //     }
+  //   });
+  //
+  //   return company;
+  // }
 
   private mapJob(
     item: HappyMondayHtmlItem,
