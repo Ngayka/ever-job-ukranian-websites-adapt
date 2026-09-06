@@ -9,33 +9,92 @@ export const INDEED_HEADERS: Record<string, string> = {
 };
 
 export const JOB_SEARCH_QUERY = `
-query GetJobData($what: String, $location: String, $cursor: String, $dateOnSiteFrom: DateInput, $radius: Int, $fromAge: String, $seoFriendlyToken: String, $filters: [SearchFilterInput!]) {
+query GetJobData {
   jobSearch(
-    what: $what
-    location: { where: $location, radius: $radius, radiusUnit: MILES }
-    cursor: $cursor
+    {what}
+    {location}
+    {cursor}
     sort: DATE
     limit: 100
-    dateOnSiteFrom: $dateOnSiteFrom
-    fromage: $fromAge
-    seoFriendlyToken: $seoFriendlyToken
-    filters: $filters
+    {filters}
   ) {
-    pageInfo { nextCursor }
+    pageInfo {
+      nextCursor
+    }
     results {
       trackingKey
       job {
-        source { name }
+        source {
+          name
+        }
         key
         title
         dateOnSite
         datePublished
-        description { html }
-        location { formatted { long } city state country countryCode postalCode }
-        attributes { label key }
-        compensation { baseSalary { unitOfWork range { ... on Range { min max } } } estimated { baseSalary { unitOfWork range { ... on Range { min max } } } } formattedRange currencyCode }
-        employer { dpiUrl name companyProfile { pageUrl images { squareLogoUrl bannerUrl } description overview { revenue employeeCount industryName } locations } relatedJobs(limit: 0) { totalCount } }
+        description {
+          html
+        }
+        location {
+          formatted {
+            long
+          }
+          city
+          state
+          country
+          countryCode
+          postalCode
+        }
+        attributes {
+          label
+          key
+        }
+        compensation {
+          baseSalary {
+            unitOfWork
+            range {
+              ... on Range {
+                min
+                max
+              }
+            }
+          }
+          estimated {
+            baseSalary {
+              unitOfWork
+              range {
+                ... on Range {
+                  min
+                  max
+                }
+              }
+            }
+          }
+          formattedRange
+          currencyCode
+        }
+        employer {
+          dpiUrl
+          name
+          companyProfile {
+            pageUrl
+            images {
+              squareLogoUrl
+              bannerUrl
+            }
+            description
+            overview {
+              revenue
+              employeeCount
+              industryName
+            }
+            locations
+          }
+          relatedJobs(limit: 0) {
+            totalCount
+          }
+        }
       }
     }
   }
-}`;
+}
+`;

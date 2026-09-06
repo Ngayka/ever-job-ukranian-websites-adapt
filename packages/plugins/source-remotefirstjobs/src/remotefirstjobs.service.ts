@@ -15,8 +15,17 @@ import {
   markdownConverter,
   extractEmails,
 } from '@ever-jobs/common';
-import { REMOTEFIRSTJOBS_RSS_URL, REMOTEFIRSTJOBS_HEADERS } from './remotefirstjobs.constants';
-import { RemotefirstjobsRssItem } from './remotefirstjobs.types';
+
+import {
+  REMOTEFIRSTJOBS_API_URL,
+  REMOTEFIRSTJOBS_HEADERS,
+  REMOTEFIRSTJOBS_MAX_PAGE,
+} from './remotefirstjobs.constants';
+
+import {
+  RemotefirstjobsApiJob,
+  RemotefirstjobsApiResponse,
+} from './remotefirstjobs.types';
 
 @SourcePlugin({
   site: Site.REMOTEFIRSTJOBS,
@@ -35,44 +44,65 @@ export class RemotefirstjobsService implements IScraper {
       caCert: input.caCert,
       timeout: input.requestTimeout,
     });
+
     client.setHeaders(REMOTEFIRSTJOBS_HEADERS);
 
-    this.logger.log(
-      `Fetching RemoteFirstJobs RSS feed (resultsWanted=${resultsWanted})`,
-    );
+    const jobs: JobPostDto[] = [];
 
     try {
-      const response = await client.get(REMOTEFIRSTJOBS_RSS_URL);
-      const xml = response.data;
+      for (let page = 0; page <= REMOTEFIRSTJOBS_MAX_PAGE; page++) {
+        if (jobs.length >= resultsWanted) {
+          break;
+        }
 
-      if (!xml || typeof xml !== 'string') {
-        this.logger.warn('Empty or invalid RSS response from RemoteFirstJobs');
-        return new JobResponseDto([]);
-      }
+        this.logger.log(
+          `Fetching RemoteFirstJobs API: query="${input.searchTerm ?? ''}", page=${page}`,
+        );
 
-      const items = this.parseRssItems(xml);
-      this.logger.log(`Parsed ${items.length} items from RemoteFirstJobs RSS feed`);
+        const response = await client.get(REMOTEFIRSTJOBS_API_URL, {
+          params: {
+            query: input.searchTerm ?? '',
+            page,
+          },
+        });
 
-      const jobs: JobPostDto[] = [];
+        const data = response.data as RemotefirstjobsApiResponse;
 
-      for (const item of items) {
-        if (jobs.length >= resultsWanted) break;
+        const apiJobs = data.jobs ?? [];
 
-        try {
-          if (input.searchTerm && !this.matchesSearch(item, input.searchTerm)) {
-            continue;
+        this.logger.log(
+          `RemoteFirstJobs API page ${page}: received ${apiJobs.length} jobs`,
+        );
+
+        if (apiJobs.length === 0) {
+          break;
+        }
+
+        for (const item of apiJobs) {
+          if (jobs.length >= resultsWanted) {
+            break;
           }
 
-          const job = this.mapJob(item, input.descriptionFormat);
-          if (job) jobs.push(job);
-        } catch (err: any) {
-          this.logger.warn(
-            `Error mapping RemoteFirstJobs job ${item.link}: ${err.message}`,
-          );
+          try {
+            if (!this.matchesLocation(item, input.location)) {
+              continue;
+            }
+
+            const job = this.mapJob(item, input.descriptionFormat);
+
+            if (job) {
+              jobs.push(job);
+            }
+          } catch (err: any) {
+            this.logger.warn(
+              `Error mapping RemoteFirstJobs job ${item.url}: ${err.message}`,
+            );
+          }
         }
       }
 
       this.logger.log(`RemoteFirstJobs returned ${jobs.length} jobs`);
+
       return new JobResponseDto(jobs);
     } catch (err: any) {
       this.logger.error(`RemoteFirstJobs scrape error: ${err.message}`);
@@ -80,131 +110,85 @@ export class RemotefirstjobsService implements IScraper {
     }
   }
 
-  /**
-   * Parse RSS XML into an array of RemotefirstjobsRssItem using regex (no XML library).
-   */
-  private parseRssItems(xml: string): RemotefirstjobsRssItem[] {
-    const items: RemotefirstjobsRssItem[] = [];
-
-    const itemBlocks = xml.split(/<item>/i).slice(1);
-
-    for (const block of itemBlocks) {
-      const itemContent = block.split(/<\/item>/i)[0] ?? block;
-
-      items.push({
-        title: this.extractTag(itemContent, 'title'),
-        link: this.extractTag(itemContent, 'link'),
-        guid: this.extractTag(itemContent, 'guid'),
-        description: this.extractTag(itemContent, 'description'),
-        pubDate: this.extractTag(itemContent, 'pubDate'),
-      });
+  private matchesLocation(
+    item: RemotefirstjobsApiJob,
+    requestedLocation?: string,
+  ): boolean {
+    if (!requestedLocation) {
+      return true;
     }
 
-    return items;
-  }
+    const requested = requestedLocation.trim().toLowerCase();
 
-  /**
-   * Extract the text content of an XML tag using regex.
-   * Handles both CDATA-wrapped and plain content.
-   */
-  private extractTag(xml: string, tagName: string): string | null {
-    // Try CDATA first: <tag><![CDATA[content]]></tag>
-    const cdataRegex = new RegExp(
-      `<${tagName}[^>]*>\\s*<!\\[CDATA\\[([\\s\\S]*?)\\]\\]>\\s*<\\/${tagName}>`,
-      'i',
+    if (!requested) {
+      return true;
+    }
+
+    const locations = item.locations ?? [];
+
+    if (locations.length === 0) {
+      return false;
+    }
+
+    return locations.some(
+      (location) => location.toLowerCase() === requested,
     );
-    const cdataMatch = cdataRegex.exec(xml);
-    if (cdataMatch) return cdataMatch[1].trim();
-
-    // Try plain content: <tag>content</tag>
-    const plainRegex = new RegExp(
-      `<${tagName}[^>]*>([\\s\\S]*?)<\\/${tagName}>`,
-      'i',
-    );
-    const plainMatch = plainRegex.exec(xml);
-    if (plainMatch) return plainMatch[1].trim();
-
-    return null;
   }
 
-  /**
-   * Check whether an RSS item matches the given search term.
-   */
-  private matchesSearch(item: RemotefirstjobsRssItem, searchTerm: string): boolean {
-    const term = searchTerm.toLowerCase();
-    const title = (item.title ?? '').toLowerCase();
-    const description = (item.description ?? '').toLowerCase();
-
-    return title.includes(term) || description.includes(term);
-  }
-
-  /**
-   * Map a parsed RSS item to a JobPostDto.
-   */
   private mapJob(
-    item: RemotefirstjobsRssItem,
+    item: RemotefirstjobsApiJob,
     descriptionFormat?: DescriptionFormat,
   ): JobPostDto | null {
-    if (!item.title || !item.link) return null;
+    if (!item.title || !item.url) {
+      return null;
+    }
 
-    // Process description (RemoteFirstJobs RSS may return HTML)
-    let description: string | undefined = item.description ?? undefined;
+    let description: string | undefined =
+      item.description || undefined;
+
     if (description) {
       if (descriptionFormat === DescriptionFormat.PLAIN) {
         description = htmlToPlainText(description);
       } else if (descriptionFormat === DescriptionFormat.MARKDOWN) {
-        description = markdownConverter(description) ?? description;
+        description =
+          markdownConverter(description) ?? description;
       }
     }
 
-    // Parse date
     let datePosted: string | undefined;
-    if (item.pubDate) {
+
+    if (item.published_at) {
       try {
-        datePosted = new Date(item.pubDate).toISOString().split('T')[0];
+        datePosted = new Date(item.published_at)
+          .toISOString()
+          .split('T')[0];
       } catch {
         datePosted = undefined;
       }
     }
 
-    // Generate ID from GUID or URL
-    const jobId = this.extractIdFromUrl(item.guid ?? item.link);
+    let compensation: string | undefined;
+
+    if (item.salary_min || item.salary_max) {
+      if (item.salary_min && item.salary_max) {
+        compensation = `${item.salary_min} - ${item.salary_max}`;
+      } else if (item.salary_min) {
+        compensation = `From ${item.salary_min}`;
+      } else if (item.salary_max) {
+        compensation = `Up to ${item.salary_max}`;
+      }
+    }
 
     return new JobPostDto({
-      id: `remotefirstjobs-${jobId}`,
+      id: `remotefirstjobs-${item.id}`,
       title: item.title,
-      jobUrl: item.link,
+      companyName: item.company_name || undefined,
+      jobUrl: item.url,
       description,
-      compensation: undefined,
       datePosted,
       isRemote: true,
       emails: extractEmails(description ?? null),
       site: Site.REMOTEFIRSTJOBS,
     });
-  }
-
-  /**
-   * Extract a short ID from a URL by using the last path segment.
-   */
-  private extractIdFromUrl(url: string): string {
-    try {
-      const parsed = new URL(url);
-      const segments = parsed.pathname.split('/').filter(Boolean);
-      return segments[segments.length - 1] ?? this.hashString(url);
-    } catch {
-      return this.hashString(url);
-    }
-  }
-
-  /**
-   * Simple string hash for fallback IDs.
-   */
-  private hashString(str: string): string {
-    let hash = 0;
-    for (let i = 0; i < str.length; i++) {
-      const char = str.charCodeAt(i);
-      hash = ((hash << 5) - hash + char) | 0;
-    }
-    return Math.abs(hash).toString(36);
   }
 }

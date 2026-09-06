@@ -56,6 +56,10 @@ export class WellfoundService implements IScraper, OnModuleDestroy {
         `(() => { const s = document.getElementById('__NEXT_DATA__'); return s ? s.textContent : null; })()`,
       ) as string | null;
 
+      this.logger.log(
+  `Wellfound: __NEXT_DATA__ ${nextDataJson ? `found (${nextDataJson.length} chars)` : 'NOT found'}`,
+      );
+
       if (!nextDataJson) {
         // TODO: Try alternative extraction (Apollo state, direct DOM parsing)
         this.logger.warn('Wellfound: __NEXT_DATA__ not found — page structure may have changed');
@@ -69,11 +73,51 @@ export class WellfoundService implements IScraper, OnModuleDestroy {
         this.logger.error('Wellfound: failed to parse __NEXT_DATA__ JSON');
         return new JobResponseDto([]);
       }
+      const apolloState = nextData.props?.pageProps?.apolloState;
+
+      this.logger.debug(
+        `Wellfound: apolloState keys = ${
+          apolloState && typeof apolloState === 'object'
+            ? Object.keys(apolloState).slice(0, 50).join(', ')
+            : 'NONE'
+        }`,
+      );
+
+      const apollo = nextData.props?.pageProps?.apollo;
+
+      this.logger.debug(
+        `Wellfound: apollo keys = ${
+          apollo && typeof apollo === 'object'
+            ? Object.keys(apollo).slice(0, 50).join(', ')
+            : 'NONE'
+        }`,
+      );
+      const apolloData = (apolloState as any)?.data;
+      this.logger.debug(
+  `Wellfound ROOT_QUERY: ${JSON.stringify(apolloData?.ROOT_QUERY)}`,
+      );
+      const firstJobKey = Object.keys(apolloData ?? {}).find((key) =>
+      key.startsWith('JobListing:'),
+        );
+
+if (firstJobKey) {
+  this.logger.debug(
+    `Wellfound sample ${firstJobKey}: ${JSON.stringify(apolloData[firstJobKey])}`,
+  );
+}
+
+      this.logger.debug(
+        `Wellfound: apolloState.data keys = ${
+          apolloData && typeof apolloData === 'object'
+            ? Object.keys(apolloData).slice(0, 100).join(', ')
+            : 'NONE'
+        }`,
+      );
 
       // TODO: Validate the exact path to job listings in __NEXT_DATA__
       // Wellfound may nest listings under different keys depending on the page
       const listings = this.extractListings(nextData);
-
+      this.logger.log(`Wellfound: extracted ${listings.length} listings`);
       if (listings.length === 0) {
         this.logger.warn(
           'Wellfound: zero listings found in __NEXT_DATA__ — data structure may have changed',
@@ -111,20 +155,39 @@ export class WellfoundService implements IScraper, OnModuleDestroy {
    * Recursively search __NEXT_DATA__ for arrays that look like job listings.
    * TODO: Pin down exact path after validating against live site.
    */
-  private extractListings(data: WellfoundNextData): WellfoundListing[] {
-    // Try common paths
-    const pageProps = data.props?.pageProps;
-    if (pageProps?.listings && Array.isArray(pageProps.listings)) {
-      return pageProps.listings;
-    }
-    if (pageProps?.jobs && Array.isArray(pageProps.jobs)) {
-      return pageProps.jobs;
-    }
+  private extractListings(nextData: WellfoundNextData): any[] {
+  const data = (nextData.props?.pageProps?.apolloState as any)?.data;
 
-    // Deep search: look for arrays of objects with 'title' and 'company' fields
-    const found = this.findListingsDeep(data, 3);
-    return found;
+  if (!data || typeof data !== 'object') {
+    return [];
   }
+
+  return Object.entries(data)
+    .filter(([key]) => key.startsWith('JobListing:'))
+    .map(([, value]) => {
+      const job = value as any;
+
+      const startupRef = job.startup?.__ref;
+      const startup = startupRef ? data[startupRef] : null;
+
+      return {
+        id: job.id,
+        slug: job.slug,
+        title: job.title?.trim(),
+        companyName:
+          startup?.name ??
+          startup?.companyName ??
+          startup?.displayName ??
+          '',
+        compensation: job.compensation ?? null,
+        locationNames: job.locationNames ?? [],
+        acceptedRemoteLocationNames:
+          job.acceptedRemoteLocationNames ?? [],
+        remote: job.remote ?? false,
+        liveStartAt: job.liveStartAt ?? null,
+      };
+    });
+}
 
   private findListingsDeep(obj: unknown, maxDepth: number): WellfoundListing[] {
     if (maxDepth <= 0 || !obj || typeof obj !== 'object') return [];
