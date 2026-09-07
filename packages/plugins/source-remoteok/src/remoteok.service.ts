@@ -41,6 +41,11 @@ export class RemoteOkService implements IScraper {
 
       const response = await http.get<unknown[]>(REMOTEOK_API_URL, {
         headers: REMOTEOK_HEADERS,
+        params: input.searchTerm
+          ? {
+              tag: input.searchTerm.trim().toLowerCase(),
+            }
+          : undefined,
       });
 
       const raw = response.data;
@@ -54,15 +59,24 @@ export class RemoteOkService implements IScraper {
       const jobEntries = raw.slice(1) as RemoteOkJob[];
 
       // Filter by searchTerm if provided
-      let filtered = jobEntries;
+     let filtered = jobEntries;
+
       if (input.searchTerm) {
-        const term = input.searchTerm.toLowerCase();
+        const term = input.searchTerm.trim().toLowerCase();
+
         filtered = jobEntries.filter((job) => {
-          const positionMatch = job.position?.toLowerCase().includes(term);
-          const tagsMatch = job.tags?.some((tag) =>
-            tag.toLowerCase().includes(term),
-          );
-          return positionMatch || tagsMatch;
+          const haystack = [
+            job.position,
+            job.company,
+            job.description,
+            job.location,
+            ...(job.tags ?? []),
+          ]
+            .filter(Boolean)
+            .join(' ')
+            .toLowerCase();
+
+          return haystack.includes(term);
         });
       }
 
@@ -72,7 +86,9 @@ export class RemoteOkService implements IScraper {
       this.logger.log(
         `RemoteOK: ${jobEntries.length} total, ${filtered.length} after filter, returning ${limited.length}`,
       );
-
+      this.logger.log(
+  `RemoteOK: ${jobEntries.length} total, ${filtered.length} after filter, returning ${limited.length}`,
+      );
       const jobs: JobPostDto[] = [];
 
       for (const entry of limited) {
@@ -129,8 +145,8 @@ export class RemoteOkService implements IScraper {
 
     // Build location
     const location = new LocationDto({
-      city: entry.location || null,
-    });
+      country: entry.location || null,
+      });
 
     // Parse date
     const datePosted = entry.date
