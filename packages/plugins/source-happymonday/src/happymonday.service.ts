@@ -91,9 +91,9 @@ export class HappyMondayService implements IScraper {
         let addedOnPage = 0;
 
         for (const item of items) {
-          if (jobs.length >= resultsWanted) {
-            break;
-          }
+          // if (jobs.length >= resultsWanted) {
+          //   break;
+          // }
 
           if (!item.id || processedIds.has(item.id)) {
             continue;

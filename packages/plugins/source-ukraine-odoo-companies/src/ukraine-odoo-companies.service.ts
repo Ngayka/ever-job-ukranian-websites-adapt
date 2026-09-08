@@ -62,9 +62,9 @@ export class UkraineOdooCompaniesService implements IScraper {
         continue;
       }
 
-      if (jobs.length >= resultsWanted) {
-        break;
-      }
+      // if (jobs.length >= resultsWanted) {
+      //   break;
+      // }
 
       try {
         this.logger.log(
@@ -97,9 +97,9 @@ export class UkraineOdooCompaniesService implements IScraper {
         let acceptedJobs = 0;
 
         for (const parsedJob of parsedJobs) {
-          if (jobs.length >= resultsWanted) {
-            break;
-          }
+          // if (jobs.length >= resultsWanted) {
+          //   break;
+          // }
 
           if (
             processedUrls.has(parsedJob.jobUrl)
@@ -109,17 +109,6 @@ export class UkraineOdooCompaniesService implements IScraper {
 
           processedUrls.add(parsedJob.jobUrl);
 
-          /*
-           * Компанії в цьому пакеті вже відібрані як
-           * компанії, що працюють з Odoo.
-           *
-           * Тому тут перевіряємо не наявність слова Odoo,
-           * а те, чи є вакансія технічною:
-           * developer, engineer, розробник тощо.
-           */
-          if (!this.isDeveloperJob(parsedJob)) {
-            continue;
-          }
 
           jobs.push(
             this.mapJob(
@@ -132,7 +121,7 @@ export class UkraineOdooCompaniesService implements IScraper {
         }
 
         this.logger.log(
-          `${company.name}: accepted ${acceptedJobs} developer jobs`,
+          `${company.name}: accepted ${acceptedJobs} jobs`,
         );
       } catch (error: unknown) {
         const message =
